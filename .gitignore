@@ -1,24 +1,66 @@
-# Compiled class file
-*.class
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Log file
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### --- SÉCURITÉ & SECRETS (TRES IMPORTANT) --- ###
+# Ignore les fichiers de variables d'environnement
+.env
+.env.local
+
+# Ignore les fichiers de configuration contenant vos mots de passe réels
+# Conseil : Créez un fichier 'application-local.properties' pour vos mots de passe
+# et gardez 'application.properties' vide ou avec des valeurs par défaut (ex: "change-me")
+src/main/resources/application-local.properties
+src/main/resources/application-secret.properties
+
+# Clés et certificats (SSL/TLS)
+*.jks
+*.p12
+*.key
+*.pem
+
+### --- LOGS & DIAGNOSTICS --- ###
+# Fichiers de logs générés lors de l'exécution
 *.log
+logs/
+log/
 
-# BlueJ files
-*.ctxt
+### --- SYSTÈME D'EXPLOITATION (OS) --- ###
+# Fichiers inutiles générés par Mac et Windows
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+### --- EXTENSION VS CODE & ÉDITEURS --- ###
+# Historique local de VS Code
+.history/
