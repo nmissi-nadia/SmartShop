@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: "01-create-users-table"
+      author: "nadia"
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(50)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: "02-create-clients-table"
+      author: "nadia"
+      changes:
+        - createTable:
+            tableName: clients
+            columns:
+              - column:
+                  name: nom
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(20)
+              - column:
+                  name: niveau_fidelite
+                  type: varchar(20)
+                  defaultValue: "BASIC"
+  - changeSet:
+      id: "03-add-enum-constraint-fidelite"
+      author: "nadia"
+      changes:
+        - sql:
+            sql: "ALTER TABLE clients ADD CONSTRAINT check_niveau_fidelite CHECK (niveau_fidelite IN ('BASIC', 'SILVER', 'GOLD', 'PLATINUM'))"
