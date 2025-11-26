@@ -1,5 +1,11 @@
 databaseChangeLog:
   - changeSet:
+      id: "00-enable-uuid-extension"
+      author: "nadia"
+      changes:
+        - sql: CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+
+  - changeSet:
       id: "01-create-users-table"
       author: "nadia"
       changes:
@@ -12,6 +18,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: username
                   type: varchar(50)
@@ -20,9 +27,23 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: password
-                  type: varchar(30)
+                  type: varchar(255)
                   constraints:
                     nullable: false
+              - column:
+                  name: role
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+
   - changeSet:
       id: "02-create-clients-table"
       author: "nadia"
@@ -31,20 +52,89 @@ databaseChangeLog:
             tableName: clients
             columns:
               - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueComputed: "uuid_generate_v4()"
+              - column:
                   name: nom
                   type: varchar(50)
                   constraints:
                     nullable: false
               - column:
                   name: email
-                  type: varchar(20)
+                  type: varchar(100)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_client_user
+                    references: users(id)
+                    deleteCascade: true
               - column:
                   name: niveau_fidelite
                   type: varchar(20)
                   defaultValue: "BASIC"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+
   - changeSet:
       id: "03-add-enum-constraint-fidelite"
       author: "nadia"
       changes:
-        - sql:
-            sql: "ALTER TABLE clients ADD CONSTRAINT check_niveau_fidelite CHECK (niveau_fidelite IN ('BASIC', 'SILVER', 'GOLD', 'PLATINUM'))"
+        - sql: >
+            ALTER TABLE clients 
+            ADD CONSTRAINT chk_niveau_fidelite 
+            CHECK (niveau_fidelite IN ('BASIC', 'SILVER', 'GOLD', 'PLATINUM'))
+
+  - changeSet:
+      id: "04-add-role-constraint"
+      author: "nadia"
+      changes:
+        - sql: >
+            ALTER TABLE users 
+            ADD CONSTRAINT chk_user_role 
+            CHECK (role IN ('ADMIN', 'CLIENT'))
+
+  - changeSet:
+      id: "05-add-indexes"
+      author: "nadia"
+      changes:
+        - createIndex:
+            indexName: idx_users_username
+            tableName: users
+            columns:
+              - name: username
+                type: varchar(50)
+        - createIndex:
+            indexName: idx_users_role
+            tableName: users
+            columns:
+              - name: role
+                type: varchar(20)
+        - createIndex:
+            indexName: idx_clients_email
+            tableName: clients
+            columns:
+              - name: email
+                type: varchar(100)
+        - createIndex:
+            indexName: idx_clients_user_id
+            tableName: clients
+            columns:
+              - name: user_id
+                type: uuid

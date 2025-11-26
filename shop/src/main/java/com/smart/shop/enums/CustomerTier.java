@@ -4,5 +4,5 @@ public enum CustomerTier {
     BASIC,
     SILVER,
     GOLD,
-    PLATINIUM
+    PLATINUM
 }

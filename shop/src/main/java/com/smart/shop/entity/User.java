@@ -8,11 +8,10 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor
 @SuperBuilder
-@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
     @Column(unique = true)
