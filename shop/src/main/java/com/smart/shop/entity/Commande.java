@@ -53,8 +53,29 @@ public class Commande {
     protected void onCreate() {
         this.id = UUID.randomUUID().toString();
         this.dateCommande = LocalDateTime.now();
-
+        calculerTotaux();
     }
     
+    @PreUpdate
+    protected void onUpdate() {
+        calculerTotaux();
+    }
 
+    public void calculerTotaux() {
+        if (items != null) {
+            this.sousTotal = items.stream()
+                .map(OrderItem::getTotalLigne)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // Calcul du total après remise et TVA
+            BigDecimal totalAvantTva = sousTotal.subtract(remise != null ? remise : BigDecimal.ZERO);
+            this.tva = totalAvantTva.multiply(new BigDecimal("0.20")); // 20% de TVA
+            this.total = totalAvantTva.add(tva);
+
+            // Calcul du montant restant
+            if (montantRestant == null) {
+                this.montantRestant = total;
+            }
+        }
+    }
 }
