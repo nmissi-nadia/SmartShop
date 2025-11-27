@@ -1,15 +1,19 @@
 package com.smart.shop.mapper;
 
-import com.smart.shop.dto.UserDto;
+import com.smart.shop.config.MapStructConfig;
+import com.smart.shop.dto.UserCreateDto;
+import com.smart.shop.dto.UserCreateDto;
 import com.smart.shop.entity.User;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = MapStructConfig.class)
 public interface UserMapper {
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
-
-    UserDto toUserDto(User user);
-
-    User toUser(UserDto userDto);
+    
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    User toEntity(UserCreateDto dto);
+    
+    UserCreateDto toDto(User user);
 }
