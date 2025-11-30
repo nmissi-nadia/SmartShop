@@ -3,3 +3,9 @@ databaseChangeLog:
       file: db/changelog/changes/01-create-users-clients.yaml
   - include:
       file: db/changelog/changes/02-insert-test-data.yaml
+  - include:
+      file: db/changelog/changes/03-create-product-order-schema.yaml
+  - include:
+      file: db/changelog/changes/04-insert-test-data.yaml
+  - include:
+      file: db/changelog/changes/05-add-timestamps-to-users.yaml

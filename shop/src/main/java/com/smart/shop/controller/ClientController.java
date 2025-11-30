@@ -1,9 +1,7 @@
 package com.smart.shop.controller;
 
-import com.smart.shop.dto.Client.ClientCreateDto;
-import com.smart.shop.dto.Client.ClientResponseDto;
-import com.smart.shop.dto.Client.ClientUpdateDto;
-import com.smart.shop.entity.Client;
+import com.smart.shop.dto.Client.*;
+import com.smart.shop.dto.Commande.CommandeResponseDto;
 import com.smart.shop.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -20,40 +17,34 @@ import java.util.UUID;
 public class ClientController {
     
     private final ClientService clientService;
-
+    
     @PostMapping
-    public ResponseEntity<Client> createClient(@Valid @RequestBody ClientCreateDto clientDto) {
-        Client createdClient = clientService.createClient(clientDto);
-        return new ResponseEntity<>(createdClient, HttpStatus.CREATED);
+    public ResponseEntity<ClientResponseDto> creerClient(@Valid @RequestBody ClientCreateDto dto) {
+        return new ResponseEntity<>(clientService.creerClient(dto), HttpStatus.CREATED);
     }
-
+    
     @GetMapping("/{id}")
-    public ResponseEntity<Client> getClientById(@PathVariable String id) {
-        return ResponseEntity.ok(clientService.getClientById(id));
+    public ResponseEntity<ClientResponseDto> obtenirClient(@PathVariable String id) {
+        return ResponseEntity.ok(clientService.obtenirClientParId(id));
     }
-
+    
     @GetMapping
-    public ResponseEntity<List<Client>> getAllClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
+    public ResponseEntity<List<ClientResponseDto>> obtenirTousLesClients() {
+        return ResponseEntity.ok(clientService.listerTousLesClients());
     }
-
+    
     @PutMapping("/{id}")
-    public ResponseEntity<Client> updateClient(
+    public ResponseEntity<ClientResponseDto> mettreAJourClient(
             @PathVariable String id,
-            @Valid @RequestBody ClientUpdateDto clientDto) {
-        return ResponseEntity.ok(clientService.updateClient(id, clientDto));
+            @Valid @RequestBody ClientUpdateDto dto) {
+        return ResponseEntity.ok(clientService.mettreAJourClient(id, dto));
     }
-
+    
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteClient(@PathVariable String id) {
-        clientService.deleteClient(id);
+    public void supprimerClient(@PathVariable String id) {
+        clientService.supprimerClient(id);
     }
+    
 
-    // Endpoint supplémentaire pour les statistiques
-    @GetMapping("/{id}/stats")
-    public ResponseEntity<?> getClientStats(@PathVariable String id) {
-        // Implémentez la logique des statistiques ici
-        return ResponseEntity.ok().build();
-    }
 }

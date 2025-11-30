@@ -35,4 +35,11 @@ public class OrderItem {
         this.id = UUID.randomUUID().toString();
         this.totalLigne = this.prixUnitaire.multiply(BigDecimal.valueOf(quantite));
     }
+    @PreUpdate
+    @PrePersist
+    public void calculerTotalLigne() {
+        if (this.prixUnitaire != null) {
+            this.totalLigne = this.prixUnitaire.multiply(BigDecimal.valueOf(this.quantite));
+        }
+    }
 }

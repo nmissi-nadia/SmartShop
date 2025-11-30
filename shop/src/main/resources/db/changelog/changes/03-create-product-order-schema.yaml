@@ -1,0 +1,218 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-products-table
+      author: nadia
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nom
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: prix_unitaire
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stock_disponible
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: actif
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+  - changeSet:
+      id: create-commandes-table
+      author: nadia
+      changes:
+        - createTable:
+            tableName: commandes
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: client_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    references: clients(id)
+                    foreignKeyName: fk_commande_client
+              - column:
+                  name: date_commande
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sous_total
+                  type: DECIMAL(10,2)
+              - column:
+                  name: remise
+                  type: DECIMAL(10,2)
+                  defaultValueNumeric: 0
+              - column:
+                  name: tva
+                  type: DECIMAL(10,2)
+              - column:
+                  name: total
+                  type: DECIMAL(10,2)
+              - column:
+                  name: code_promo
+                  type: VARCHAR(50)
+              - column:
+                  name: statut
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: montant_restant
+                  type: DECIMAL(10,2)
+
+  - changeSet:
+      id: create-order-items-table
+      author: nadia
+      changes:
+        - createTable:
+            tableName: order_items
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: commande_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    references: commandes(id)
+                    foreignKeyName: fk_order_item_commande
+                    onDelete: CASCADE
+              - column:
+                  name: produit_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    references: products(id)
+                    foreignKeyName: fk_order_item_produit
+              - column:
+                  name: quantite
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: prix_unitaire
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_ligne
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: create-paiements-table
+      author: nadia
+      changes:
+        - createTable:
+            tableName: paiements
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: commande_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    references: commandes(id)
+                    foreignKeyName: fk_paiement_commande
+              - column:
+                  name: numero_paiement
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: montant
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type_paiement
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_paiement
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_encaissement
+                  type: TIMESTAMP
+
+  - changeSet:
+      id: add-indexes
+      author: nadia
+      changes:
+        - createIndex:
+            indexName: idx_commande_client
+            tableName: commandes
+            columns:
+              - column:
+                  name: client_id
+                  
+        - createIndex:
+            indexName: idx_commande_statut
+            tableName: commandes
+            columns:
+              - column:
+                  name: statut
+                  
+        - createIndex:
+            indexName: idx_order_item_commande
+            tableName: order_items
+            columns:
+              - column:
+                  name: commande_id
+                  
+        - createIndex:
+            indexName: idx_order_item_produit
+            tableName: order_items
+            columns:
+              - column:
+                  name: produit_id
+                  
+        - createIndex:
+            indexName: idx_paiement_commande
+            tableName: paiements
+            columns:
+              - column:
+                  name: commande_id

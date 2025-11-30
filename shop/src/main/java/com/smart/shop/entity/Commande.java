@@ -4,6 +4,7 @@ import com.smart.shop.enums.StatutCommande;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ public class Commande {
     
     @Column(name = "montant_restant", precision = 10, scale = 2)
     private BigDecimal montantRestant;
+
     
     @PrePersist
     protected void onCreate() {
@@ -61,21 +63,27 @@ public class Commande {
         calculerTotaux();
     }
 
+    
+
+    public void ajouterItem(OrderItem item) {
+        items.add(item);
+        item.setCommande(this);
+    }
+
     public void calculerTotaux() {
-        if (items != null) {
-            this.sousTotal = items.stream()
+        this.sousTotal = items.stream()
                 .map(OrderItem::getTotalLigne)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            // Calcul du total après remise et TVA
-            BigDecimal totalAvantTva = sousTotal.subtract(remise != null ? remise : BigDecimal.ZERO);
-            this.tva = totalAvantTva.multiply(new BigDecimal("0.20")); // 20% de TVA
-            this.total = totalAvantTva.add(tva);
-
-            // Calcul du montant restant
-            if (montantRestant == null) {
-                this.montantRestant = total;
-            }
-        }
+        
+        // Calcul du total après remise
+        BigDecimal montantApresRemise = sousTotal.subtract(remise != null ? remise : BigDecimal.ZERO);
+        
+        // Calcul de la TVA (20%)
+        this.tva = montantApresRemise.multiply(new BigDecimal("0.20"))
+                .setScale(2, RoundingMode.HALF_UP);
+        
+        // Calcul du total TTC
+        this.total = montantApresRemise.add(tva);
+        this.montantRestant = total;
     }
 }

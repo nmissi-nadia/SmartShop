@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor
 @SuperBuilder
@@ -20,4 +22,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

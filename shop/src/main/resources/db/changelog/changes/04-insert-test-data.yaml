@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-test-products
+      author: smartshop
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  valueComputed: uuid_generate_v4()
+              - column:
+                  name: nom
+                  value: "Ordinateur portable"
+              - column:
+                  name: prix_unitaire
+                  valueNumeric: 999.99
+              - column:
+                  name: stock_disponible
+                  valueNumeric: 50
+
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  valueComputed: uuid_generate_v4()
+              - column:
+                  name: nom
+                  value: "Smartphone haut de gamme"
+              - column:
+                  name: prix_unitaire
+                  valueNumeric: 899.99
+              - column:
+                  name: stock_disponible
+                  valueNumeric: 100
+
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  valueComputed: uuid_generate_v4()
+              - column:
+                  name: nom
+                  value: "Casque audio sans fil"
+              - column:
+                  name: prix_unitaire
+                  valueNumeric: 199.99
+              - column:
+                  name: stock_disponible
+                  valueNumeric: 200

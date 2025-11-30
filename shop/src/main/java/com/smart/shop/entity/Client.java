@@ -1,5 +1,8 @@
 package com.smart.shop.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.smart.shop.enums.CustomerTier;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,5 +22,8 @@ public class Client extends User{
     @Column(name = "niveau_fidelite")
     private CustomerTier niveauFidelite;
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Commande> commandes = new ArrayList<>();
     
 }
