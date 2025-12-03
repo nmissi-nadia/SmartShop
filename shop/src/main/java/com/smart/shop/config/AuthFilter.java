@@ -20,7 +20,9 @@ public class AuthFilter extends HttpFilter {
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
         "/api/auth/login",
         "/api/auth/register",
-        "/error"
+        "/error",
+        "/swagger-ui.html",
+        "/swagger-ui/"
     );
 
     @Override

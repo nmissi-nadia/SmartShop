@@ -2,6 +2,7 @@ package com.smart.shop.service;
 
 import com.smart.shop.dto.Product.*;
 import com.smart.shop.entity.Product;
+import com.smart.shop.exception.CommandeException;
 import com.smart.shop.exception.ResourceAlreadyExistsException;
 import com.smart.shop.exception.ResourceNotFoundException;
 import com.smart.shop.mapper.ProductMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +58,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDto> listerTousLesProduits() {
+    public List<ProductResponseDto> obtenirTousLesProduits() {
         return productRepository.findAll().stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
@@ -67,7 +69,7 @@ public class ProductService {
         Product produit = obtenirProduitEntiteParId(produitId);
         int nouveauStock = produit.getStockDisponible() + quantite;
         if (nouveauStock < 0) {
-            throw new StockInsuffisantException("Stock insuffisant pour le produit : " + produit.getNom());
+            throw new CommandeException.StockInsuffisantException("Stock insuffisant pour le produit : " + produit.getNom());
         }
         produit.setStockDisponible(nouveauStock);
         productRepository.save(produit);

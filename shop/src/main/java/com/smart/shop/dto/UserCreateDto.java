@@ -1,6 +1,6 @@
 package com.smart.shop.dto;
 
-import com.smart.shop.enums.UserRole;
+import com.smart.shop.enums.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

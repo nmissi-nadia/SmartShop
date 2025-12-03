@@ -7,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.GenericGenerator;
+
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor
 @SuperBuilder
@@ -14,6 +16,12 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private String id;
 
     @Column(unique = true)

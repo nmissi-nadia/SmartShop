@@ -55,7 +55,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: client_id
-                  type: VARCHAR(36)
+                  type: uuid
                   constraints:
                     nullable: false
                     references: clients(id)

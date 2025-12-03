@@ -11,6 +11,7 @@ import com.smart.shop.enums.CustomerTier;
 import com.smart.shop.exception.ResourceAlreadyExistsException;
 import com.smart.shop.exception.ResourceNotFoundException;
 import com.smart.shop.mapper.ClientMapper;
+import com.smart.shop.mapper.CommandeMapper;
 import com.smart.shop.repository.ClientRepository;
 import com.smart.shop.repository.CommandeRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final CommandeRepository commandeRepository;
     private final ClientMapper clientMapper;
+    private final CommandeMapper commandeMapper;
 
     @Transactional(readOnly = true)
     public ClientResponseDto obtenirClientParId(String id) {
@@ -75,32 +77,55 @@ public class ClientService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<CommandeResponseDto> consulterHistoriqueCommandes(String clientId) {
+        // Valide que le client existe
+        obtenirClientEntiteParId(clientId);
+
+        List<Commande> commandes = commandeRepository.findByClientIdOrderByDateCommandeDesc(clientId);
+
+        return commandes.stream()
+                .map(commandeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void mettreAJourStatistiquesClient(String clientId) {
         Client client = obtenirClientEntiteParId(clientId);
+
+        Object[] statsResult = commandeRepository.getClientStats(clientId);
+        Object[] stats = (Object[]) statsResult[0];
+
+
+        long nombreCommandes = (stats[0] instanceof Number) ? ((Number) stats[0]).longValue() : 0L;
         
-        // Calculer le nombre total de commandes
-        long nombreCommandes = commandeRepository.countCommandesByClient_Id(clientId);
-        
-        // Calculer le montant total dépensé
-        BigDecimal montantTotal = commandeRepository.findByClientId(clientId).stream()
-                .map(Commande::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
+        BigDecimal montantTotal = BigDecimal.ZERO;
+        if (stats[1] instanceof Number) {
+            montantTotal = new BigDecimal(((Number) stats[1]).toString());
+        }
+
+        LocalDateTime premiereCommande = (stats[2] instanceof LocalDateTime) ? (LocalDateTime) stats[2] : null;
+        LocalDateTime derniereCommande = (stats[3] instanceof LocalDateTime) ? (LocalDateTime) stats[3] : null;
+
+
         // Mettre à jour le niveau de fidélité
         CustomerTier nouveauNiveau = calculerNiveauFidelite(nombreCommandes, montantTotal);
         
         client.setNombreCommandes(nombreCommandes);
         client.setMontantTotalDepense(montantTotal);
         client.setNiveauFidelite(nouveauNiveau);
+        client.setDatePremiereCommande(premiereCommande);
+        client.setDateDerniereCommande(derniereCommande);
         
         clientRepository.save(client);
     }
 
     private CustomerTier calculerNiveauFidelite(long nombreCommandes, BigDecimal montantTotal) {
-        if (montantTotal.compareTo(new BigDecimal("5000")) >= 0 || nombreCommandes >= 20) {
+        if (nombreCommandes >= 20 || (montantTotal != null && montantTotal.compareTo(new BigDecimal("15000")) >= 0)) {
+            return CustomerTier.PLATINUM;
+        } else if (nombreCommandes >= 10 || (montantTotal != null && montantTotal.compareTo(new BigDecimal("5000")) >= 0)) {
             return CustomerTier.GOLD;
-        } else if (montantTotal.compareTo(new BigDecimal("2000")) >= 0 || nombreCommandes >= 10) {
+        } else if (nombreCommandes >= 3 || (montantTotal != null && montantTotal.compareTo(new BigDecimal("1000")) >= 0)) {
             return CustomerTier.SILVER;
         } else {
             return CustomerTier.BASIC;

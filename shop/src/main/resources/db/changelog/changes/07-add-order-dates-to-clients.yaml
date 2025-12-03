@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 7
+      author: nadia
+      changes:
+        - addColumn:
+            tableName: clients
+            columns:
+              - column:
+                  name: date_premiere_commande
+                  type: TIMESTAMP
+              - column:
+                  name: date_derniere_commande
+                  type: TIMESTAMP

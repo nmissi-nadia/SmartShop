@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: insert-test-products
-      author: smartshop
+      author: nadia
       changes:
         - insert:
             tableName: products

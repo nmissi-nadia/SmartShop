@@ -1,7 +1,7 @@
 package com.smart.shop.dto.Client;
 
 import com.smart.shop.dto.UserCreateDto;
-import com.smart.shop.enums.CustomerTier;
+import com.smart.shop.enums.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

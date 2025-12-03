@@ -47,7 +47,7 @@ public interface CommandeRepository extends JpaRepository<Commande, String> {
            "MIN(c.dateCommande) as premiereCommande, " +
            "MAX(c.dateCommande) as derniereCommande " +
            "FROM Commande c " +
-           "WHERE c.client.id = :clientId")
+           "WHERE c.client.id = :clientId AND c.statut = com.smart.shop.enums.StatutCommande.CONFIRMED")
     Object[] getClientStats(@Param("clientId") String clientId);
     
     /**
@@ -56,7 +56,7 @@ public interface CommandeRepository extends JpaRepository<Commande, String> {
      * @param dateFin Date de fin
      * @return Liste des commandes dans l'intervalle
      */
-    List<Commande> findBetweenDates(LocalDateTime dateDebut, LocalDateTime dateFin);
+    List<Commande> findByDateCommandeBetween(LocalDateTime dateDebut, LocalDateTime dateFin);
     List<Commande> findByStatut(StatutCommande statut);
 
     List<Commande> findByClientIdAndStatut(String clientId, StatutCommande statut);

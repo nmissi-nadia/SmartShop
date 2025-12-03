@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: nadia
+      changes:
+        - addColumn:
+            tableName: clients
+            columns:
+              - column:
+                  name: nombre_commandes
+                  type: BIGINT
+                  defaultValue: 0
+              - column:
+                  name: montant_total_depense
+                  type: DECIMAL(10, 2)
+                  defaultValue: 0.00
