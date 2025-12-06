@@ -1,6 +1,6 @@
 package com.smart.shop.dto.Commande;
 
-import com.smart.shop.dto.Client.ClientCreateDto;
+import com.smart.shop.dto.Client.ClientMinimalDto;
 import com.smart.shop.enums.StatutCommande;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class CommandeResponseDto {
     private String id;
-    private ClientCreateDto client;
+    private ClientMinimalDto client;
     private List<LigneCommandeResponseDto> lignes;
     private LocalDateTime dateCommande;
     private BigDecimal sousTotal;

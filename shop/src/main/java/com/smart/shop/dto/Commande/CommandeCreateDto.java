@@ -14,7 +14,7 @@ public class CommandeCreateDto {
     private String clientId;
     
     @NotEmpty(message = "La commande doit contenir au moins un article")
-    private List<@Valid LigneCommandeDto> lignesCommande;
+    private List<@Valid LigneCommandeDto> items; // Renommé pour correspondre à l'entité
     
     private String codePromo;
     

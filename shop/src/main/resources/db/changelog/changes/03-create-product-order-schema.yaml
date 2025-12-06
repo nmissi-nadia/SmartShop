@@ -55,10 +55,10 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: client_id
-                  type: uuid
+                  type: VARCHAR(44)
                   constraints:
                     nullable: false
-                    references: clients(id)
+                    references: clients(user_id)
                     foreignKeyName: fk_commande_client
               - column:
                   name: date_commande

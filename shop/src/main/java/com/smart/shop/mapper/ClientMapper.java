@@ -1,27 +1,32 @@
 package com.smart.shop.mapper;
 
-import com.smart.shop.config.MapStructConfig;
 import com.smart.shop.dto.Client.*;
 import com.smart.shop.entity.Client;
-import org.mapstruct.BeanMapping;
+import com.smart.shop.entity.Commande;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
-public interface ClientMapper {
-    
+import java.util.List;
+
+@Mapper(componentModel = "spring", uses = {CommandeMapper.class})
+public abstract class ClientMapper {
+
+
     @Mapping(target = "niveauFidelite", source = "niveauFidelite")
-    ClientMinimalDto toMinimalDto(Client client);
+    public abstract ClientMinimalDto toMinimalDto(Client client);
     
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "commandes", ignore = true)
-    Client toEntity(ClientCreateDto dto);
+    public abstract Client toEntity(ClientCreateDto dto);
     
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "commandes", ignore = true)
-    void updateFromDto(ClientUpdateDto dto, @MappingTarget Client client);
+    public abstract void updateFromDto(ClientUpdateDto dto, @MappingTarget Client client);
 
-    ClientResponseDto toDto(Client save);
+    public abstract ClientResponseDto toResponseDto(Client client);
+
+    // Méthode pour mapper une Commande vers le DTO de l'historique
+    public abstract ClientOrderHistoryDto commandeToClientOrderHistoryDto(Commande commande);
+
+    public abstract List<ClientOrderHistoryDto> commandesToClientOrderHistoryDtos(List<Commande> commandes);
 }

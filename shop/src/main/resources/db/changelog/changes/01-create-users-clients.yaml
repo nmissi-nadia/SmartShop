@@ -14,7 +14,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: uuid
+                  type: varchar(44)
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -52,12 +52,14 @@ databaseChangeLog:
             tableName: clients
             columns:
               - column:
-                  name: id
-                  type: uuid
+                  name: user_id
+                  type: varchar(44)
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValueComputed: "uuid_generate_v4()"
+                    foreignKeyName: fk_client_user
+                    references: users(id)
+                    deleteCascade: true
               - column:
                   name: nom
                   type: varchar(50)
@@ -69,14 +71,6 @@ databaseChangeLog:
                   constraints:
                     unique: true
                     nullable: false
-              - column:
-                  name: user_id
-                  type: uuid
-                  constraints:
-                    nullable: false
-                    foreignKeyName: fk_client_user
-                    references: users(id)
-                    deleteCascade: true
               - column:
                   name: niveau_fidelite
                   type: varchar(20)

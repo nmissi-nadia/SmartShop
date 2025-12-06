@@ -1,7 +1,9 @@
 package com.smart.shop.controller;
 
-import com.smart.shop.dto.UserCreateDto;
+import com.smart.shop.dto.UserCreateDTO;
+import com.smart.shop.dto.UserResponseDTO;
 import com.smart.shop.entity.User;
+import com.smart.shop.mapper.UserMapper;
 import com.smart.shop.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +20,13 @@ import java.util.UUID;
 public class UserController {
     
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserCreateDto userDto) {
-        User createdUser = userService.createUser(userDto);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    @PostMapping("/users")
+    public ResponseEntity<UserResponseDTO> creerUser(@Valid @RequestBody UserCreateDTO dto) {
+        User user = userService.creerUser(dto);
+        UserResponseDTO responseDto = userMapper.toDto(user);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -35,11 +39,14 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable String id,
-            @Valid @RequestBody UserCreateDto userDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
+            @Valid @RequestBody UserCreateDTO dto) {
+
+        User updatedUser = userService.updateUser(id, dto);
+        UserResponseDTO responseDto = userMapper.toDto(updatedUser);
+        return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping("/{id}")

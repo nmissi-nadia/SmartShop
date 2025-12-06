@@ -10,40 +10,46 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
 @Order(1)
 public class AuthFilter extends HttpFilter {
 
-    private static final List<String> PUBLIC_PATHS = Arrays.asList(
-        "/api/auth/login",
-        "/api/auth/register",
-        "/error",
-        "/swagger-ui.html",
-        "/swagger-ui/"
+    // IMPORTANT :
+    // startsWith() ne comprend pas les wildcards "**"
+    // donc on liste seulement les préfixes réels.
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/api/auth",       // login, register
+            "/swagger-ui",     // UI Swagger
+            "/v3/api-docs",    // JSON Swagger
+            "/swagger-resources",
+            "/webjars",
+            "/error"
     );
 
     @Override
-    protected void doFilter(HttpServletRequest request, 
-                          HttpServletResponse response, 
-                          FilterChain chain) throws IOException, ServletException {
-        
+    protected void doFilter(HttpServletRequest request,
+                            HttpServletResponse response,
+                            FilterChain chain)
+            throws IOException, ServletException {
+
         String path = request.getRequestURI();
-        
+
+        // Laisse passer toutes les requêtes OPTIONS (CORS)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             chain.doFilter(request, response);
             return;
         }
 
-        boolean isPublicPath = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
-        
-        if (isPublicPath) {
+        // Vérification si l’URL est publique
+        boolean isPublic = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+        if (isPublic) {
             chain.doFilter(request, response);
             return;
         }
 
+        // Vérification session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("USER_ID") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -52,11 +58,12 @@ public class AuthFilter extends HttpFilter {
             return;
         }
 
-        // Vérification des rôles si nécessaire
+        // Vérification rôle si nécessaire
         String requiredRole = getRequiredRole(path);
         if (requiredRole != null) {
             String userRole = (String) session.getAttribute("USER_ROLE");
-            if (!requiredRole.equals(userRole)) {
+
+            if (userRole == null || !userRole.equals(requiredRole)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\":\"Accès refusé\"}");
@@ -67,10 +74,14 @@ public class AuthFilter extends HttpFilter {
         chain.doFilter(request, response);
     }
 
+    // Gestion simple des permissions
     private String getRequiredRole(String path) {
+
+        // Les routes admin nécessitent rôle ADMIN
         if (path.startsWith("/api/admin/")) {
             return "ADMIN";
         }
+
         return null;
     }
 }

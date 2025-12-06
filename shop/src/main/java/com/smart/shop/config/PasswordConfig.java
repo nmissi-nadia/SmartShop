@@ -1,7 +1,9 @@
 package com.smart.shop.config;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class PasswordConfig {
     public static String hashPassword(String plainPassword) {
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt());

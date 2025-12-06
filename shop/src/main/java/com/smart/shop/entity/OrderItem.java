@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Data
@@ -26,10 +27,10 @@ public class OrderItem {
     private Integer quantite;
 
     @Column(name = "prix_unitaire", nullable = false, precision = 10, scale = 2)
-    private BigDecimal prixUnitaire;
+    private BigDecimal prixUnitaire = BigDecimal.ZERO;
 
     @Column(name = "total_ligne", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalLigne;
+    private BigDecimal totalLigne = BigDecimal.ZERO;
 
     @PrePersist
     protected void onCreate() {
@@ -39,8 +40,17 @@ public class OrderItem {
 
     @PreUpdate
     public void calculerTotalLigne() {
-        if (this.prixUnitaire != null && this.quantite != null) {
-            this.totalLigne = this.prixUnitaire.multiply(BigDecimal.valueOf(this.quantite));
+        if (prixUnitaire == null) {
+            prixUnitaire = BigDecimal.ZERO;
         }
+        if (quantite <= 0) {
+            quantite = 1;
+        }
+        this.totalLigne = prixUnitaire.multiply(new BigDecimal(quantite))
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public void setPrixUnitaire(BigDecimal prixUnitaire) {
+        this.prixUnitaire = prixUnitaire != null ? prixUnitaire : BigDecimal.ZERO;
     }
 }

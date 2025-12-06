@@ -14,7 +14,7 @@ databaseChangeLog:
                   value: "admin"
               - column:
                   name: password
-                  value: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"  # password: password
+                  value: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"
               - column:
                   name: role
                   value: "ADMIN"
@@ -40,7 +40,7 @@ databaseChangeLog:
                   value: "client1"
               - column:
                   name: password
-                  value: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"  # password: password
+                  value: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"
               - column:
                   name: role
                   value: "CLIENT"
@@ -50,21 +50,19 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   valueComputed: "CURRENT_TIMESTAMP"
+
         - insert:
             tableName: clients
             columns:
               - column:
-                  name: id
-                  value: "33333333-3333-3333-3333-333333333333"
+                  name: user_id
+                  value: "22222222-2222-2222-2222-222222222222"
               - column:
                   name: nom
                   value: "Dupont"
               - column:
                   name: email
                   value: "client1@example.com"
-              - column:
-                  name: user_id
-                  value: "22222222-2222-2222-2222-222222222222"
               - column:
                   name: niveau_fidelite
                   value: "BASIC"
@@ -90,7 +88,7 @@ databaseChangeLog:
                   value: "client2"
               - column:
                   name: password
-                  value: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"  # password: password
+                  value: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"
               - column:
                   name: role
                   value: "CLIENT"
@@ -100,21 +98,19 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   valueComputed: "CURRENT_TIMESTAMP"
+
         - insert:
             tableName: clients
             columns:
               - column:
-                  name: id
-                  value: "55555555-5555-5555-5555-555555555555"
+                  name: user_id
+                  value: "44444444-4444-4444-4444-444444444444"
               - column:
                   name: nom
                   value: "Martin"
               - column:
                   name: email
                   value: "client2@example.com"
-              - column:
-                  name: user_id
-                  value: "44444444-4444-4444-4444-444444444444"
               - column:
                   name: niveau_fidelite
                   value: "SILVER"

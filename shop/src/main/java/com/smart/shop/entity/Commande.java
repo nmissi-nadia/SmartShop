@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@NoArgsConstructor
 @Table(name = "commandes")
 public class Commande {
     @Id
@@ -19,7 +21,7 @@ public class Commande {
     private String id;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id", referencedColumnName = "user_id", nullable = false)
     private Client client;
     
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -29,16 +31,16 @@ public class Commande {
     private LocalDateTime dateCommande;
     
     @Column(name = "sous_total", precision = 10, scale = 2)
-    private BigDecimal sousTotal;
+    private BigDecimal sousTotal= BigDecimal.ZERO;
     
     @Column(precision = 10, scale = 2)
     private BigDecimal remise = BigDecimal.ZERO;
     
     @Column(precision = 10, scale = 2)
-    private BigDecimal tva;
+    private BigDecimal tva= BigDecimal.ZERO;
     
     @Column(precision = 10, scale = 2)
-    private BigDecimal total;
+    private BigDecimal total= BigDecimal.ZERO;
     
     @Column(name = "code_promo")
     private String codePromo;
@@ -48,8 +50,14 @@ public class Commande {
     private StatutCommande statut = StatutCommande.PENDING;
     
     @Column(name = "montant_restant", precision = 10, scale = 2)
-    private BigDecimal montantRestant;
+    private BigDecimal montantRestant= BigDecimal.ZERO;
 
+    public Commande(Client client) {
+        if (client == null) {
+            throw new IllegalArgumentException("Le client ne peut pas être nul");
+        }
+        this.client = client;
+    }
     
     @PrePersist
     protected void onCreate() {
@@ -63,27 +71,31 @@ public class Commande {
         calculerTotaux();
     }
 
-    
-
     public void ajouterItem(OrderItem item) {
-        items.add(item);
+        this.items.add(item);
         item.setCommande(this);
     }
 
     public void calculerTotaux() {
+        // 1. Calculer le sous-total à partir des lignes de commande.
+        // L'utilisation de reduce avec BigDecimal.ZERO garantit que le résultat n'est jamais null.
         this.sousTotal = items.stream()
                 .map(OrderItem::getTotalLigne)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        // Calcul du total après remise
-        BigDecimal montantApresRemise = sousTotal.subtract(remise != null ? remise : BigDecimal.ZERO);
-        
-        // Calcul de la TVA (20%)
+
+        // 2. Calculer le montant après application de la remise.
+        // .max(BigDecimal.ZERO) empêche un total négatif si la remise est supérieure au sous-total.
+        BigDecimal montantApresRemise = this.sousTotal.subtract(this.remise).max(BigDecimal.ZERO);
+
+        // 3. Calculer la TVA sur le montant après remise.
         this.tva = montantApresRemise.multiply(new BigDecimal("0.20"))
                 .setScale(2, RoundingMode.HALF_UP);
-        
-        // Calcul du total TTC
+
+        // 4. Calculer le total final et mettre à jour le montant restant.
         this.total = montantApresRemise.add(tva);
-        this.montantRestant = total;
+        this.montantRestant = this.total;
+    }
+    public void setRemise(BigDecimal remise) {
+        this.remise = remise != null ? remise : BigDecimal.ZERO;
     }
 }

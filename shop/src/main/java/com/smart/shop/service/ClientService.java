@@ -1,20 +1,20 @@
 package com.smart.shop.service;
 
-import com.smart.shop.dto.Client.ClientCreateDto;
-import com.smart.shop.dto.Client.ClientResponseDto;
-import com.smart.shop.dto.Client.ClientStatsDto;
-import com.smart.shop.dto.Client.ClientUpdateDto;
-import com.smart.shop.dto.Commande.CommandeResponseDto;
+import com.smart.shop.dto.Client.*;
 import com.smart.shop.entity.Client;
 import com.smart.shop.entity.Commande;
+import com.smart.shop.entity.User;
 import com.smart.shop.enums.CustomerTier;
+import com.smart.shop.enums.UserRole;
 import com.smart.shop.exception.ResourceAlreadyExistsException;
 import com.smart.shop.exception.ResourceNotFoundException;
 import com.smart.shop.mapper.ClientMapper;
 import com.smart.shop.mapper.CommandeMapper;
 import com.smart.shop.repository.ClientRepository;
 import com.smart.shop.repository.CommandeRepository;
+import com.smart.shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import com.smart.shop.config.PasswordConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.smart.shop.config.PasswordConfig.hashPassword;
+
 @Service
 @RequiredArgsConstructor
 public class ClientService {
@@ -30,11 +32,12 @@ public class ClientService {
     private final CommandeRepository commandeRepository;
     private final ClientMapper clientMapper;
     private final CommandeMapper commandeMapper;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public ClientResponseDto obtenirClientParId(String id) {
         return clientRepository.findById(id)
-                .map(clientMapper::toDto)
+                .map(clientMapper::toResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Client non trouvé avec l'ID : " + id));
     }
 
@@ -45,21 +48,30 @@ public class ClientService {
     }
 
     @Transactional
-    public ClientResponseDto creerClient(ClientCreateDto dto) {
+    public ClientResponseDto createClient(ClientCreateDto dto) {
+        // Vérifier les contraintes d'unicité
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new ResourceAlreadyExistsException("Un utilisateur avec ce nom d'utilisateur existe déjà");
+        }
         if (clientRepository.existsByEmail(dto.getEmail())) {
             throw new ResourceAlreadyExistsException("Un client avec cet email existe déjà");
         }
 
+        // Mapper le DTO en entité Client. MapStruct gère les champs hérités de User.
         Client client = clientMapper.toEntity(dto);
+        client.setPassword(hashPassword(dto.getPassword())); // Hasher le mot de passe
+        client.setRole(UserRole.CLIENT); // Définir le rôle
         client.setNiveauFidelite(CustomerTier.BASIC); // Niveau par défaut
-        return clientMapper.toDto(clientRepository.save(client));
+        
+        Client savedClient = clientRepository.save(client);
+        return clientMapper.toResponseDto(savedClient);
     }
 
     @Transactional
     public ClientResponseDto mettreAJourClient(String id, ClientUpdateDto dto) {
         Client client = obtenirClientEntiteParId(id);
         clientMapper.updateFromDto(dto, client);
-        return clientMapper.toDto(clientRepository.save(client));
+        return clientMapper.toResponseDto(clientRepository.save(client));
     }
 
     @Transactional
@@ -73,19 +85,19 @@ public class ClientService {
     @Transactional(readOnly = true)
     public List<ClientResponseDto> listerTousLesClients() {
         return clientRepository.findAll().stream()
-                .map(clientMapper::toDto)
+                .map(clientMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<CommandeResponseDto> consulterHistoriqueCommandes(String clientId) {
+    public List<ClientOrderHistoryDto> consulterHistoriqueCommandes(String clientId) {
         // Valide que le client existe
         obtenirClientEntiteParId(clientId);
 
         List<Commande> commandes = commandeRepository.findByClientIdOrderByDateCommandeDesc(clientId);
 
         return commandes.stream()
-                .map(commandeMapper::toDto)
+                .map(clientMapper::commandeToClientOrderHistoryDto)
                 .collect(Collectors.toList());
     }
 

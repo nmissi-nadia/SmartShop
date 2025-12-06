@@ -1,7 +1,6 @@
 package com.smart.shop.controller;
 
 import com.smart.shop.dto.Client.*;
-import com.smart.shop.dto.Commande.CommandeResponseDto;
 import com.smart.shop.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +16,11 @@ import java.util.List;
 public class ClientController {
     
     private final ClientService clientService;
-    
+
     @PostMapping
     public ResponseEntity<ClientResponseDto> creerClient(@Valid @RequestBody ClientCreateDto dto) {
-        return new ResponseEntity<>(clientService.creerClient(dto), HttpStatus.CREATED);
+        ClientResponseDto nouveauClient = clientService.createClient(dto);
+        return new ResponseEntity<>(nouveauClient, HttpStatus.CREATED);
     }
     
     @GetMapping("/{id}")

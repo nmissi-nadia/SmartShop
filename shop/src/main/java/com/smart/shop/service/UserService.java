@@ -1,6 +1,6 @@
 package com.smart.shop.service;
 
-import com.smart.shop.dto.UserCreateDto;
+import com.smart.shop.dto.UserCreateDTO;
 import com.smart.shop.dto.Client.ClientCreateDto;
 import com.smart.shop.entity.*;
 import com.smart.shop.enums.*;
@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.smart.shop.config.PasswordConfig.hashPassword;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -26,31 +28,18 @@ public class UserService {
     private final ClientMapper clientMapper;
 
     @Transactional
-    public User createUser(UserCreateDto userDto) {
+    public User creerUser(UserCreateDTO dto) {
         // Vérifier si l'utilisateur existe déjà
-        if (userRepository.existsByUsername(userDto.getUsername())) {
-            throw new ResourceAlreadyExistsException("Un utilisateur avec ce nom d'utilisateur existe déjà");
-        }
-        // Créer l'utilisateur de base
-        User user = userMapper.toEntity(userDto);
-        // Définir le rôle par défaut si non spécifié
-        if (user.getRole() == null) {
-            user.setRole(UserRole.CLIENT);
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new RuntimeException("Un utilisateur avec ce nom d'utilisateur existe déjà");
         }
 
-        // Si c'est un client, créer également l'entité Client
-        if (user.getRole() == UserRole.CLIENT && userDto instanceof ClientCreateDto) {
-            ClientCreateDto clientDto = (ClientCreateDto) userDto;
-            
-            // Vérifier si l'email est déjà utilisé
-            if (clientRepository.existsByEmail(clientDto.getEmail())) {
-                throw new ResourceAlreadyExistsException("Un client avec cet email existe déjà");
-            }
-            // Créer le client
-            Client client = clientMapper.toEntity(clientDto);
-            client.setId(user.getId()); // Utiliser le même ID que l'utilisateur
-            clientRepository.save(client);
-        }
+        // Créer et sauvegarder l'utilisateur
+        User user = User.builder()
+                .username(dto.getUsername())
+                .password(hashPassword(dto.getPassword()))
+                .role(dto.getRole() != null ? dto.getRole() : UserRole.CLIENT) // Valeur par défaut
+                .build();
 
         return userRepository.save(user);
     }
@@ -67,15 +56,30 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(String id, UserCreateDto userDto) {
+    public User updateUser(String id, UserCreateDTO dto) {
+        // Vérifier si l'utilisateur existe
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        
-        // Mise à jour des champs
-        existingUser.setUsername(userDto.getUsername());
-        existingUser.setRole(userDto.getRole());
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID : " + id));
 
-        
+        // Vérifier si le nouveau nom d'utilisateur est déjà utilisé par un autre utilisateur
+        if (!existingUser.getUsername().equals(dto.getUsername()) &&
+                userRepository.existsByUsername(dto.getUsername())) {
+            throw new RuntimeException("Ce nom d'utilisateur est déjà utilisé");
+        }
+
+        // Mettre à jour les champs
+        existingUser.setUsername(dto.getUsername());
+
+        // Mettre à jour le mot de passe uniquement s'il est fourni
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            existingUser.setPassword(hashPassword(dto.getPassword()));
+        }
+
+        // Mettre à jour le rôle s'il est fourni, sinon conserver l'ancien
+        if (dto.getRole() != null) {
+            existingUser.setRole(dto.getRole());
+        }
+
         return userRepository.save(existingUser);
     }
 
