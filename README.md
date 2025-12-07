@@ -1,7 +1,6 @@
 # 🛒 SmartShop – API REST de Gestion Commerciale
 
 ### *Backend professionnel pour MicroTech Maroc*
-
 <p align="center">
   <img src="https://img.shields.io/badge/Java-17-orange?logo=java&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?logo=springboot&logoColor=white" />
