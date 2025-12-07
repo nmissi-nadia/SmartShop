@@ -1,6 +1,7 @@
 package com.smart.shop.entity;
 
 import com.smart.shop.enums.TypePaiement;
+import com.smart.shop.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -18,10 +19,9 @@ public class Paiement {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "commande_id", nullable = false)
     private Commande commande;
-    
     @Column(name = "numero_paiement", nullable = false)
     private Integer numeroPaiement;
-    
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal montant;
     
@@ -29,11 +29,29 @@ public class Paiement {
     @Column(name = "type_paiement", nullable = false)
     private TypePaiement typePaiement;
     
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_paiement", nullable = false)
+    private PaymentStatus statut = PaymentStatus.EN_ATTENTE;
+    
     @Column(name = "date_paiement", nullable = false)
     private LocalDateTime datePaiement;
     
     @Column(name = "date_encaissement")
     private LocalDateTime dateEncaissement;
+
+    // --- Champs spécifiques pour les chèques ---
+    @Column(name = "cheque_numero")
+    private String numeroCheque;
+
+    @Column(name = "cheque_banque")
+    private String nomBanque;
+
+    @Column(name = "cheque_date_echeance")
+    private LocalDateTime dateEcheance;
+
+    // --- Champ spécifique pour les virements ---
+    @Column(name = "virement_reference")
+    private String referenceVirement;
     
     @PrePersist
     protected void onCreate() {

@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9
+      author: nadia
+      changes:
+
+        - addColumn:
+            tableName: paiements
+            columns:
+              - column:
+                  name: statut_paiement
+                  type: VARCHAR(50)
+                  defaultValue: "EN_ATTENTE"
+                  constraints:
+                    nullable: false
+
+        # Ajout du CHECK constraint compatible Liquibase Community Edition
+        - sql:
+            dbms: mysql
+            sql: |
+              ALTER TABLE paiements 
+              ADD CONSTRAINT chk_paiement_statut
+              CHECK (statut_paiement IN ('EN_ATTENTE', 'ENCAISSÉ', 'REJETÉ'));

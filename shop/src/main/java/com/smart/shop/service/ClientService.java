@@ -143,4 +143,16 @@ public class ClientService {
             return CustomerTier.BASIC;
         }
     }
+    @Transactional(readOnly = true)
+    public ClientStatsDto obtenirStatsClient(String clientId) {
+        Client client = obtenirClientEntiteParId(clientId);
+        return new ClientStatsDto(
+                client.getNombreCommandes(),
+                client.getMontantTotalDepense(),
+                client.getDatePremiereCommande(),
+                client.getDateDerniereCommande(),
+                client.getNiveauFidelite()
+        );
+    }
+
 }

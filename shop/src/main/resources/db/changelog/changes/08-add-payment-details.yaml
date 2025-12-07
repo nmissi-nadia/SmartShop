@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 8
+      author: nadia
+      changes:
+        - addColumn:
+            tableName: paiements
+            columns:
+              - column:
+                  name: cheque_numero
+                  type: varchar(255)
+              - column:
+                  name: cheque_banque
+                  type: varchar(255)
+              - column:
+                  name: cheque_date_echeance
+                  type: timestamp
+              - column:
+                  name: virement_reference
+                  type: varchar(255)

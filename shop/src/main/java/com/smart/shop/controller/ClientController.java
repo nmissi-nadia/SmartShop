@@ -45,6 +45,13 @@ public class ClientController {
     public void supprimerClient(@PathVariable String id) {
         clientService.supprimerClient(id);
     }
-    
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<ClientStatsDto> obtenirStatsClient(@PathVariable String id) {
+        // Mettre à jour les stats avant la récupération
+        clientService.mettreAJourStatistiquesClient(id);
+        ClientStatsDto stats = clientService.obtenirStatsClient(id);
+        return ResponseEntity.ok(stats);
+    }
+
 
 }

@@ -4,12 +4,14 @@ import com.smart.shop.dto.Client.ClientResponseDto;
 import com.smart.shop.dto.Commande.CommandeCreateDto;
 import com.smart.shop.dto.Commande.CommandeResponseDto;
 import com.smart.shop.entity.*;
+import com.smart.shop.enums.PaymentStatus;
 import com.smart.shop.enums.StatutCommande;
 import com.smart.shop.exception.CommandeException.StockInsuffisantException;
 import com.smart.shop.exception.ResourceNotFoundException;
 import com.smart.shop.mapper.CommandeMapper;
 import com.smart.shop.repository.CommandeRepository;
 import com.smart.shop.repository.OrderItemRepository;
+import com.smart.shop.repository.PaiementRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class CommandeService {
     private final ProductService productService;
     private final CommandeMapper commandeMapper;
     private final OrderItemRepository orderItemRepository;
+    private final PaiementRepository paiementRepository;
 
     // -----------------------------------------------------------------
     //                           CRÉATION
@@ -185,8 +188,17 @@ public class CommandeService {
                 if (commande.getStatut() != StatutCommande.PENDING)
                     throw new IllegalStateException("Seule une commande PENDING peut être confirmée.");
 
-                if (commande.getMontantRestant().compareTo(BigDecimal.ZERO) > 0)
+                // Vérification 1 : Le montant restant doit être à zéro.
+                if (commande.getMontantRestant().compareTo(BigDecimal.ZERO) > 0) {
                     throw new IllegalStateException("Commande non entièrement payée.");
+                }
+
+                // Vérification 2 : Tous les paiements doivent être encaissés.
+                List<Paiement> paiements = paiementRepository.findByCommandeId(id);
+                boolean tousPaiementsEncaisse = paiements.stream().allMatch(p -> p.getStatut() == PaymentStatus.ENCAISSÉ);
+                if (!tousPaiementsEncaisse) {
+                    throw new IllegalStateException("Impossible de confirmer : tous les paiements ne sont pas encore encaissés.");
+                }
 
                 // Décrémenter stock
                 commande.getItems().forEach(item ->
@@ -198,8 +210,20 @@ public class CommandeService {
                 break;
 
             case CANCELED:
-                if (commande.getStatut() != StatutCommande.PENDING)
-                    throw new IllegalStateException("Seule une commande PENDING peut être annulée.");
+                // On peut annuler une commande en attente ou déjà confirmée.
+                if (commande.getStatut() != StatutCommande.PENDING && commande.getStatut() != StatutCommande.CONFIRMED) {
+                    throw new IllegalStateException("Seule une commande PENDING ou CONFIRMED peut être annulée.");
+                }
+
+                // Si la commande était confirmée, on doit réapprovisionner le stock.
+                if (commande.getStatut() == StatutCommande.CONFIRMED) {
+                    commande.getItems().forEach(item ->
+                            productService.mettreAJourStock(item.getProduit().getId(), item.getQuantite()) // Note: quantité positive
+                    );
+                    // Note : Ici, il faudrait aussi gérer la logique de remboursement des paiements.
+                    // Pour l'instant, nous nous concentrons sur le stock.
+                }
+
                 break;
 
             default:

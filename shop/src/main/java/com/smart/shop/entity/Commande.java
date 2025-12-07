@@ -77,14 +77,10 @@ public class Commande {
     }
 
     public void calculerTotaux() {
-        // 1. Calculer le sous-total à partir des lignes de commande.
-        // L'utilisation de reduce avec BigDecimal.ZERO garantit que le résultat n'est jamais null.
         this.sousTotal = items.stream()
                 .map(OrderItem::getTotalLigne)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 2. Calculer le montant après application de la remise.
-        // .max(BigDecimal.ZERO) empêche un total négatif si la remise est supérieure au sous-total.
         BigDecimal montantApresRemise = this.sousTotal.subtract(this.remise).max(BigDecimal.ZERO);
 
         // 3. Calculer la TVA sur le montant après remise.
