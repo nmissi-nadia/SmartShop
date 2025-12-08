@@ -23,6 +23,8 @@ public class Commande {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", referencedColumnName = "user_id", nullable = false)
     private Client client;
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
+    private List<Paiement> paiements;
     
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
@@ -64,6 +66,7 @@ public class Commande {
         this.id = UUID.randomUUID().toString();
         this.dateCommande = LocalDateTime.now();
         calculerTotaux();
+        this.montantRestant = this.total;
     }
     
     @PreUpdate
@@ -89,7 +92,7 @@ public class Commande {
 
         // 4. Calculer le total final et mettre à jour le montant restant.
         this.total = montantApresRemise.add(tva);
-        this.montantRestant = this.total;
+
     }
     public void setRemise(BigDecimal remise) {
         this.remise = remise != null ? remise : BigDecimal.ZERO;

@@ -92,14 +92,15 @@ public class PaiementService {
         switch (nouveau) {
 
             case ENCAISSÉ:
-                // Si REJETÉ → ENCAISSÉ → on redéduit le montant
-                if (ancien == PaymentStatus.REJETÉ) {
+                // Si un paiement passe à ENCAISSÉ pour la première fois
+                if (ancien == PaymentStatus.EN_ATTENTE || ancien == PaymentStatus.REJETÉ) {
                     commande.setMontantRestant(
                             commande.getMontantRestant().subtract(paiement.getMontant())
                     );
                 }
                 paiement.setDateEncaissement(LocalDateTime.now());
                 break;
+
 
             case REJETÉ:
                 // Si EN_ATTENTE ou ENCAISSÉ → REJETÉ → on réajoute le montant

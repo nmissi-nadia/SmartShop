@@ -11,5 +11,3 @@ databaseChangeLog:
       file: db/changelog/changes/06-add-stats-to-clients.yaml
   - include:
       file: db/changelog/changes/07-add-order-dates-to-clients.yaml
-  - include:
-      file: db/changelog/changes/09-add-statut-paiement-column.yaml

@@ -16,7 +16,7 @@ public class Paiement {
     @Column(columnDefinition = "VARCHAR(36)")
     private String id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "commande_id", nullable = false)
     private Commande commande;
     @Column(name = "numero_paiement", nullable = false)
