@@ -1,8 +1,10 @@
 package com.smart.shop.controller;
 
+import com.smart.shop.config.RoleRequired;
 import com.smart.shop.dto.UserCreateDTO;
 import com.smart.shop.dto.UserResponseDTO;
 import com.smart.shop.entity.User;
+import com.smart.shop.enums.UserRole;
 import com.smart.shop.mapper.UserMapper;
 import com.smart.shop.service.UserService;
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@RoleRequired(UserRole.ADMIN)
 public class UserController {
     
     private final UserService userService;

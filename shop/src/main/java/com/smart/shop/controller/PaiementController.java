@@ -1,8 +1,10 @@
 package com.smart.shop.controller;
 
+import com.smart.shop.config.RoleRequired;
 import com.smart.shop.dto.Paiement.PaiementCreateDto;
 import com.smart.shop.dto.Paiement.PaiementResponseDto;
 import com.smart.shop.dto.Paiement.PaiementStatutUpdateDto;
+import com.smart.shop.enums.UserRole;
 import com.smart.shop.service.PaiementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +20,12 @@ public class PaiementController {
     private final PaiementService paiementService;
 
     @PostMapping
+    @RoleRequired(UserRole.CLIENT)
     public ResponseEntity<PaiementResponseDto> creerPaiement(@Valid @RequestBody PaiementCreateDto dto) {
         return new ResponseEntity<>(paiementService.creerPaiement(dto), HttpStatus.CREATED);
     }
     @PutMapping("/{id}/statut")
+    @RoleRequired(UserRole.ADMIN)
     public ResponseEntity<PaiementResponseDto> mettreAJourStatutPaiement(
             @PathVariable String id,
             @Valid @RequestBody PaiementStatutUpdateDto dto) {

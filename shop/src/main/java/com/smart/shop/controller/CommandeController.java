@@ -1,8 +1,10 @@
 package com.smart.shop.controller;
 
+import com.smart.shop.config.RoleRequired;
 import com.smart.shop.dto.Commande.CommandeCreateDto;
 import com.smart.shop.dto.Commande.CommandeResponseDto;
 import com.smart.shop.enums.StatutCommande;
+import com.smart.shop.enums.UserRole;
 import com.smart.shop.service.CommandeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class CommandeController {
     // CRÉER UNE COMMANDE
     // -------------------------------------------------------
     @PostMapping
+    @RoleRequired(UserRole.CLIENT)
     public ResponseEntity<CommandeResponseDto> creerCommande(
             @Valid @RequestBody CommandeCreateDto dto) {
 
@@ -33,6 +36,7 @@ public class CommandeController {
     // OBTENIR UNE COMMANDE PAR ID
     // -------------------------------------------------------
     @GetMapping("/{id}")
+    @RoleRequired({UserRole.ADMIN, UserRole.CLIENT})
     public ResponseEntity<CommandeResponseDto> obtenirCommande(@PathVariable String id) {
 
         return ResponseEntity.ok(commandeService.obtenirCommandeParId(id));
@@ -42,6 +46,7 @@ public class CommandeController {
     // OBTENIR TOUTES LES COMMANDES D’UN CLIENT
     // -------------------------------------------------------
     @GetMapping("/client/{clientId}")
+    @RoleRequired({UserRole.ADMIN, UserRole.CLIENT})
     public ResponseEntity<List<CommandeResponseDto>> obtenirCommandesParClient(
             @PathVariable String clientId) {
 
@@ -52,6 +57,7 @@ public class CommandeController {
     // RECHERCHER PAR STATUT
     // -------------------------------------------------------
     @GetMapping("/statut/{statut}")
+    @RoleRequired(UserRole.ADMIN)
     public ResponseEntity<List<CommandeResponseDto>> rechercherParStatut(
             @PathVariable StatutCommande statut) {
 
@@ -62,6 +68,7 @@ public class CommandeController {
     // RECHERCHER PAR CLIENT + STATUT
     // -------------------------------------------------------
     @GetMapping("/recherche")
+    @RoleRequired({UserRole.ADMIN, UserRole.CLIENT})
     public ResponseEntity<List<CommandeResponseDto>> rechercherParClientEtStatut(
             @RequestParam String clientId,
             @RequestParam StatutCommande statut) {
@@ -75,6 +82,7 @@ public class CommandeController {
     // METTRE À JOUR LE STATUT D’UNE COMMANDE
     // -------------------------------------------------------
     @PutMapping("/{id}/statut")
+    @RoleRequired(UserRole.ADMIN)
     public ResponseEntity<CommandeResponseDto> mettreAJourStatut(
             @PathVariable String id,
             @RequestParam StatutCommande statut) {
